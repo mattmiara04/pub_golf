@@ -1,24 +1,27 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'splash_screen.dart';
+import 'start_night_screen.dart';
+import 'join_squad_screen.dart';
+import 'how_it_works_screen.dart';
 
 void main() {
   runApp(const PubGolfApp());
 }
 
-// ─── Design System ───────────────────────────────────────────────────────────
+// ─── Design System ────────────────────────────────────────────────────────────
 class PubGolfColors {
   PubGolfColors._();
 
-  static const background   = Color(0xFF0B3D2E);
-  static const surface      = Color(0xFF1E1E1E);
-  static const gold         = Color(0xFFF2C94C);
-  static const purple       = Color(0xFF9D4EDD);
-  static const purpleDark   = Color(0xFF7B2CBF);
-  static const danger       = Color(0xFFEB5757);
-  static const textPrimary  = Color(0xFFFFFFFF);
+  static const background    = Color(0xFF0B3D2E);
+  static const surface       = Color(0xFF1E1E1E);
+  static const gold          = Color(0xFFF2C94C);
+  static const purple        = Color(0xFF9D4EDD);
+  static const purpleDark    = Color(0xFF7B2CBF);
+  static const danger        = Color(0xFFEB5757);
+  static const textPrimary   = Color(0xFFFFFFFF);
   static const textSecondary = Color(0xFFBDBDBD);
 }
-// ─────────────────────────────────────────────────────────────────────────────
 
 class PubGolfApp extends StatelessWidget {
   const PubGolfApp({super.key});
@@ -38,15 +41,12 @@ class PubGolfApp extends StatelessWidget {
           onSurface: PubGolfColors.textPrimary,
         ),
         scaffoldBackgroundColor: PubGolfColors.background,
-        // Buttons are styled individually on the home screen for nightlife effects
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: PubGolfColors.gold,
             foregroundColor: Colors.black,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             elevation: 6,
             shadowColor: PubGolfColors.gold.withValues(alpha: 0.5),
           ),
@@ -56,17 +56,16 @@ class PubGolfApp extends StatelessWidget {
             foregroundColor: PubGolfColors.purple,
             side: const BorderSide(color: PubGolfColors.purple, width: 1.5),
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           ),
         ),
       ),
-      home: const HomeScreen(),
+      home: const SplashScreen(),
     );
   }
 }
 
+// ─── Home Screen ──────────────────────────────────────────────────────────────
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -91,41 +90,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 2200),
       vsync: this,
     );
-
     _titleController = AnimationController(
       duration: const Duration(milliseconds: 1900),
       vsync: this,
     );
 
-    _emojiSlide = Tween<Offset>(
-      begin: const Offset(0, -4),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _emojiController,
-      curve: const ElasticOutCurve(0.2),
-    ));
+    _emojiSlide = Tween<Offset>(begin: const Offset(0, -4), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _emojiController, curve: const ElasticOutCurve(0.2)));
 
-    _titleSlide = Tween<Offset>(
-      begin: const Offset(0, -3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _titleController,
-      curve: const ElasticOutCurve(0.3),
-    ));
+    _titleSlide = Tween<Offset>(begin: const Offset(0, -3), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _titleController, curve: const ElasticOutCurve(0.3)));
 
     _emojiFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _emojiController,
-        curve: const Interval(0.0, 0.25, curve: Curves.easeIn),
-      ),
-    );
+        CurvedAnimation(parent: _emojiController, curve: const Interval(0.0, 0.25, curve: Curves.easeIn)));
 
     _titleFade = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _titleController,
-        curve: const Interval(0.0, 0.25, curve: Curves.easeIn),
-      ),
-    );
+        CurvedAnimation(parent: _titleController, curve: const Interval(0.0, 0.25, curve: Curves.easeIn)));
 
     _shimmerController = AnimationController(
       duration: const Duration(seconds: 3),
@@ -157,14 +137,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF0B3D2E),
-                  Color(0xFF050D0A),
-                ],
+                colors: [Color(0xFF0B3D2E), Color(0xFF050D0A)],
               ),
             ),
           ),
-          // Layer 2: dark night sky overlay — fades from near-black top into transparent
+          // Layer 2: dark night sky overlay
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
@@ -172,8 +149,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xE0050810), // deep night at the very top
-                    Color(0x8010052A), // dark purple-night mid-blend
+                    Color(0xE0050810),
+                    Color(0x8010052A),
                     Colors.transparent,
                   ],
                   stops: [0.0, 0.28, 0.58],
@@ -181,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
-          // Layer 3: four-pointed stars scattered across the night sky area
+          // Layer 3: shimmer starfield
           Positioned.fill(
             child: AnimatedBuilder(
               animation: _shimmerController,
@@ -190,37 +167,32 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ),
             ),
           ),
-          // Layer 4: tight purple bloom only around the emoji (top-center, small radius)
+          // Layer 4: tight purple bloom around emoji
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
                 gradient: RadialGradient(
                   center: Alignment(0.0, -0.45),
                   radius: 0.35,
-                  colors: [
-                    Color(0x557B2CBF),
-                    Colors.transparent,
-                  ],
+                  colors: [Color(0x557B2CBF), Colors.transparent],
                   stops: [0.0, 1.0],
                 ),
               ),
             ),
           ),
-          // Layer 3: second purple bloom lower down — ties buttons into the palette
+          // Layer 5: lower purple bloom behind buttons
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
                 gradient: RadialGradient(
                   center: Alignment(0.0, 0.7),
                   radius: 0.6,
-                  colors: [
-                    Color(0x2E7B2CBF),
-                    Colors.transparent,
-                  ],
+                  colors: [Color(0x2E7B2CBF), Colors.transparent],
                 ),
               ),
             ),
           ),
+
           // Content
           SafeArea(
             child: Padding(
@@ -233,7 +205,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   // Title area
                   Column(
                     children: [
-                      // Emoji — larger, brighter purple halo
                       SlideTransition(
                         position: _emojiSlide,
                         child: FadeTransition(
@@ -258,7 +229,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      // Title — stronger purple glow
                       SlideTransition(
                         position: _titleSlide,
                         child: FadeTransition(
@@ -288,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
                   const Spacer(flex: 2),
 
-                  // NEW GAME — gold gradient, warm shadow
+                  // NEW GAME
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
@@ -307,28 +277,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const StartNightScreen())),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
                         foregroundColor: Colors.black,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       child: const Text(
                         'NEW GAME',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                        ),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 20),
-                  // JOIN GAME — richer purple gradient fill + stronger glow
+
+                  // JOIN GAME
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(14),
@@ -347,51 +314,42 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       ],
                     ),
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => const JoinSquadScreen())),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       child: const Text(
                         'JOIN GAME',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 2,
-                        ),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 2),
                       ),
                     ),
                   ),
+
                   const SizedBox(height: 20),
-                  // HOW TO PLAY — dim, very secondary
+
+                  // HOW TO PLAY
                   OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => const HowItWorksScreen())),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFF6B5B7A), // muted purple-gray
+                      foregroundColor: const Color(0xFF6B5B7A),
                       side: const BorderSide(color: Color(0xFF3A2A4A), width: 1.5),
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
                     child: const Text(
                       'HOW TO PLAY',
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 2,
-                      ),
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, letterSpacing: 2),
                     ),
                   ),
 
                   const Spacer(flex: 1),
 
-                  // Footer
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
                     child: Text(
@@ -414,11 +372,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 }
 
+// ─── Starfield painter ────────────────────────────────────────────────────────
 class _StarfieldPainter extends CustomPainter {
   final double shimmer;
   const _StarfieldPainter(this.shimmer);
 
-  // [xFrac, yFrac, outerRadius, opacity, glowSigmaMultiplier, phaseOffset]
   static final List<List<double>> _stars = _buildStars();
 
   static List<List<double>> _buildStars() {
@@ -431,87 +389,56 @@ class _StarfieldPainter extends CustomPainter {
 
     for (int row = 0; row < rows; row++) {
       for (int col = 0; col < cols; col++) {
-        // Skip ~12% of cells so the grid doesn't feel mechanical
         if (rng.nextDouble() < 0.12) continue;
-
-        // Place star at a random position within the cell (±40% of cell size)
-        final x = ((col + 0.5 + (rng.nextDouble() - 0.5) * 0.8) * cellW)
-            .clamp(0.02, 0.98);
-        final y = ((row + 0.5 + (rng.nextDouble() - 0.5) * 0.8) * cellH)
-            .clamp(0.01, 0.54);
-
+        final x = ((col + 0.5 + (rng.nextDouble() - 0.5) * 0.8) * cellW).clamp(0.02, 0.98);
+        final y = ((row + 0.5 + (rng.nextDouble() - 0.5) * 0.8) * cellH).clamp(0.01, 0.54);
         stars.add([
-          x,
-          y,
-          rng.nextDouble() * 1.5 + 1.2, // outer radius 1.2–2.7 px
-          rng.nextDouble() * 0.4 + 0.6,  // base opacity 0.6–1.0
-          rng.nextDouble() * 2.0 + 3.0,  // glow sigma multiplier 3.0–5.0
-          rng.nextDouble(),               // shimmer phase offset
+          x, y,
+          rng.nextDouble() * 1.5 + 1.2,
+          rng.nextDouble() * 0.4 + 0.6,
+          rng.nextDouble() * 2.0 + 3.0,
+          rng.nextDouble(),
         ]);
       }
     }
     return stars;
   }
 
-  void _drawStar(Canvas canvas, Offset center, double outerR, double opacity, double glowMult, double phase) {
-    // Each star pulses between 40% and 100% of its base opacity independently
-    final t = (math.sin((shimmer + phase) * 2 * math.pi) * 0.5 + 0.5); // 0.0–1.0
+  void _drawStar(Canvas canvas, Offset center, double outerR, double opacity,
+      double glowMult, double phase) {
+    final t = math.sin((shimmer + phase) * 2 * math.pi) * 0.5 + 0.5;
     opacity = opacity * (0.4 + 0.6 * t);
-    // Glow halo — drawn first so it sits behind the star
-    final glowPaint = Paint()
+
+    canvas.drawCircle(center, outerR, Paint()
       ..color = Colors.white.withValues(alpha: opacity * 0.85)
-      ..maskFilter = MaskFilter.blur(BlurStyle.normal, outerR * glowMult);
-    canvas.drawCircle(center, outerR, glowPaint);
-    // Second wider bloom for extra radiance
+      ..maskFilter = MaskFilter.blur(BlurStyle.normal, outerR * glowMult));
+
     canvas.drawCircle(center, outerR * 2, Paint()
       ..color = Colors.white.withValues(alpha: opacity * 0.25)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, outerR * glowMult * 2));
 
-    // Four-pointed sparkle with concave bezier curves between each tip.
-    // Vertical axis is 1.35× longer than horizontal to match the reference shape.
-    final vR  = outerR * 1.35; // vertical tip reach
-    final hR  = outerR;        // horizontal tip reach
-    final cR  = outerR * 0.13; // waist control-point distance from centre (tighter = more pinched)
-
-    final top    = Offset(center.dx,        center.dy - vR);
-    final right  = Offset(center.dx + hR,   center.dy);
-    final bottom = Offset(center.dx,        center.dy + vR);
-    final left   = Offset(center.dx - hR,   center.dy);
-
-    // Control points sit very close to centre at the 45° diagonals,
-    // pulling the path inward and creating the concave waist.
-    final cTR = Offset(center.dx + cR, center.dy - cR);
-    final cBR = Offset(center.dx + cR, center.dy + cR);
-    final cBL = Offset(center.dx - cR, center.dy + cR);
-    final cTL = Offset(center.dx - cR, center.dy - cR);
+    final vR = outerR * 1.35;
+    final hR = outerR;
+    final cR = outerR * 0.13;
 
     final path = Path()
-      ..moveTo(top.dx, top.dy)
-      ..quadraticBezierTo(cTR.dx, cTR.dy, right.dx, right.dy)
-      ..quadraticBezierTo(cBR.dx, cBR.dy, bottom.dx, bottom.dy)
-      ..quadraticBezierTo(cBL.dx, cBL.dy, left.dx, left.dy)
-      ..quadraticBezierTo(cTL.dx, cTL.dy, top.dx, top.dy)
+      ..moveTo(center.dx, center.dy - vR)
+      ..quadraticBezierTo(center.dx + cR, center.dy - cR, center.dx + hR, center.dy)
+      ..quadraticBezierTo(center.dx + cR, center.dy + cR, center.dx, center.dy + vR)
+      ..quadraticBezierTo(center.dx - cR, center.dy + cR, center.dx - hR, center.dy)
+      ..quadraticBezierTo(center.dx - cR, center.dy - cR, center.dx, center.dy - vR)
       ..close();
 
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = Colors.white.withValues(alpha: opacity)
-        ..style = PaintingStyle.fill,
-    );
+    canvas.drawPath(path, Paint()
+      ..color = Colors.white.withValues(alpha: opacity)
+      ..style = PaintingStyle.fill);
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     for (final s in _stars) {
-      _drawStar(
-        canvas,
-        Offset(s[0] * size.width, s[1] * size.height),
-        s[2],
-        s[3],
-        s[4],
-        s[5],
-      );
+      _drawStar(canvas, Offset(s[0] * size.width, s[1] * size.height),
+          s[2], s[3], s[4], s[5]);
     }
   }
 

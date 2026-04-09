@@ -27,26 +27,32 @@ class PlayerScore {
 }
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
-const _mockHoles = [
-  HoleData(holeNumber: 1, totalHoles: 6, barName: 'The Drunken Duck',  drink: 'Pint of Lager',     par: 6, flavorText: 'Steady. Control the pace.'),
-  HoleData(holeNumber: 2, totalHoles: 6, barName: 'Brewhaus',          drink: 'IPA',               par: 5, flavorText: 'This is where nights are won.'),
-  HoleData(holeNumber: 3, totalHoles: 6, barName: 'Tipsy Tavern',      drink: 'G&T',               par: 4, flavorText: 'Four sips. Easy. Or is it?'),
-  HoleData(holeNumber: 4, totalHoles: 6, barName: 'Downtown Taproom',  drink: 'Craft Pale Ale',    par: 7, flavorText: 'Long hole. Pace yourself.'),
-  HoleData(holeNumber: 5, totalHoles: 6, barName: 'Whiskey Barrel',    drink: 'Whiskey & Coke',    par: 5, flavorText: 'Nearly there. Stay sharp.'),
-  HoleData(holeNumber: 6, totalHoles: 6, barName: 'Night Owl Pub',     drink: 'Tequila Shot',      par: 2, flavorText: 'Final hole. Leave it all here.'),
+// Raw hole templates — up to 9 bars. holeNumber/totalHoles set dynamically.
+const _holeTemplates = [
+  (bar: 'The Drunken Duck', drink: 'Pint of Lager',  par: 6, flavor: 'Steady. Control the pace.'),
+  (bar: 'Brewhaus',         drink: 'IPA',             par: 5, flavor: 'This is where nights are won.'),
+  (bar: 'Tipsy Tavern',     drink: 'G&T',             par: 4, flavor: 'Four sips. Easy. Or is it?'),
+  (bar: 'Downtown Taproom', drink: 'Craft Pale Ale',  par: 7, flavor: 'Long hole. Pace yourself.'),
+  (bar: 'Whiskey Barrel',   drink: 'Whiskey & Coke',  par: 5, flavor: 'Nearly there. Stay sharp.'),
+  (bar: 'Night Owl Pub',    drink: 'Tequila Shot',    par: 2, flavor: 'Final hole. Leave it all here.'),
+  (bar: 'The Rusty Nail',   drink: 'Gin Fizz',        par: 5, flavor: 'Keep the rhythm going.'),
+  (bar: 'Crown & Anchor',   drink: 'Dark & Stormy',   par: 4, flavor: 'One more stop. Stay focused.'),
+  (bar: 'The Fox & Hound',  drink: 'Pint of Stout',   par: 6, flavor: 'Last call. Make it count.'),
 ];
 
+// All players start at 0 — scores accumulate during play.
 const _mockPlayers = [
-  PlayerScore(name: 'Sarah',  totalVsPar: -2, isYou: false),
-  PlayerScore(name: 'You',    totalVsPar: -1, isYou: true),
-  PlayerScore(name: 'Matt',   totalVsPar:  0, isYou: false),
-  PlayerScore(name: 'Jordan', totalVsPar:  2, isYou: false),
-  PlayerScore(name: 'Priya',  totalVsPar:  3, isYou: false),
+  PlayerScore(name: 'Sarah',  totalVsPar: 0, isYou: false),
+  PlayerScore(name: 'You',    totalVsPar: 0, isYou: true),
+  PlayerScore(name: 'Matt',   totalVsPar: 0, isYou: false),
+  PlayerScore(name: 'Jordan', totalVsPar: 0, isYou: false),
+  PlayerScore(name: 'Priya',  totalVsPar: 0, isYou: false),
 ];
 
 // ─── Entry screen ─────────────────────────────────────────────────────────────
 class ActiveHoleScreen extends StatefulWidget {
-  const ActiveHoleScreen({super.key});
+  const ActiveHoleScreen({super.key, this.numHoles = 6});
+  final int numHoles;
 
   @override
   State<ActiveHoleScreen> createState() => _ActiveHoleScreenState();
@@ -54,14 +60,33 @@ class ActiveHoleScreen extends StatefulWidget {
 
 class _ActiveHoleScreenState extends State<ActiveHoleScreen> {
   int _holeIndex = 0;
-  final List<int> _scores = List.filled(6, -1); // -1 = not logged
+  late final List<HoleData> _holes;
+  late final List<int> _scores; // -1 = not logged
+
+  @override
+  void initState() {
+    super.initState();
+    final count = widget.numHoles.clamp(1, _holeTemplates.length);
+    _holes = List.generate(count, (i) {
+      final t = _holeTemplates[i];
+      return HoleData(
+        holeNumber: i + 1,
+        totalHoles: count,
+        barName: t.bar,
+        drink: t.drink,
+        par: t.par,
+        flavorText: t.flavor,
+      );
+    });
+    _scores = List.filled(count, -1);
+  }
 
   void _logScore(int sips) {
     setState(() => _scores[_holeIndex] = sips);
   }
 
   void _advanceHole() {
-    if (_holeIndex < _mockHoles.length - 1) {
+    if (_holeIndex < _holes.length - 1) {
       setState(() => _holeIndex++);
     } else {
       // Game complete — pop for now
@@ -75,7 +100,7 @@ class _ActiveHoleScreenState extends State<ActiveHoleScreen> {
         .asMap()
         .entries
         .where((e) => e.value >= 0)
-        .fold(0, (sum, e) => sum + (e.value - _mockHoles[e.key].par));
+        .fold<int>(0, (sum, e) => sum + (e.value - _holes[e.key].par));
     return _mockPlayers.map((p) {
       if (p.isYou) return PlayerScore(name: p.name, totalVsPar: yourVsPar, isYou: true);
       return p;
@@ -85,7 +110,10 @@ class _ActiveHoleScreenState extends State<ActiveHoleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final hole = _mockHoles[_holeIndex];
+    final hole = _holes[_holeIndex];
+    final nextBarName = _holeIndex + 1 < _holes.length
+        ? _holes[_holeIndex + 1].barName
+        : null;
     return _HoleScreenView(
       hole: hole,
       leaderboard: _liveLeaderboard,
@@ -104,6 +132,7 @@ class _ActiveHoleScreenState extends State<ActiveHoleScreen> {
           pageBuilder: (_, _, _) => _HoleResultOverlay(
             hole: hole,
             sips: sips,
+            nextBarName: nextBarName,
             onContinue: () {
               Navigator.pop(context); // close overlay
               _advanceHole();
@@ -774,9 +803,15 @@ class _LeaderboardRow extends StatelessWidget {
 
 // ─── Hole result overlay ──────────────────────────────────────────────────────
 class _HoleResultOverlay extends StatefulWidget {
-  const _HoleResultOverlay({required this.hole, required this.sips, required this.onContinue});
+  const _HoleResultOverlay({
+    required this.hole,
+    required this.sips,
+    required this.onContinue,
+    this.nextBarName,
+  });
   final HoleData hole;
   final int sips;
+  final String? nextBarName;
   final VoidCallback onContinue;
 
   @override
@@ -874,16 +909,16 @@ class _HoleResultOverlayState extends State<_HoleResultOverlay>
                   ),
                 ),
                 const SizedBox(height: 40),
-                if (widget.hole.holeNumber < widget.hole.totalHoles)
+                if (widget.nextBarName != null)
                   Column(
                     children: [
-                      Text(
+                      const Text(
                         'Next up',
-                        style: const TextStyle(color: Color(0xFF444455), fontSize: 13),
+                        style: TextStyle(color: Color(0xFF444455), fontSize: 13),
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        _mockHoles[widget.hole.holeNumber].barName,
+                        widget.nextBarName!,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
